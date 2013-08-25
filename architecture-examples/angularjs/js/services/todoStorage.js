@@ -4,16 +4,24 @@
 /**
  * Services that persists and retrieves TODOs from localStorage
  */
-todomvc.factory('todoStorage', function () {
-	var STORAGE_ID = 'todos-angularjs';
-
+todomvc.factory('todoStorage', function ($log) {
 	return {
 		get: function () {
-			return JSON.parse(localStorage.getItem(STORAGE_ID) || '[]');
+			var request = new XMLHttpRequest();
+			request.open('GET', 'http://ng-todomvc-s3.s3.amazonaws.com/todos.json', false);
+			request.send(null);
+
+			if (request.status === 200) {
+				$log.info("GET200:" + request.responseText);
+				return JSON.parse(request.responseText || '[]');
+			}
 		},
 
 		put: function (todos) {
-			localStorage.setItem(STORAGE_ID, JSON.stringify(todos));
+			var request = new XMLHttpRequest();
+			request.open('PUT', 'http://ng-todomvc-s3.s3.amazonaws.com/todos.json', false);
+			request.send(JSON.stringify(todos));
+			$log.info("PUT" + request.status);
 		}
 	};
 });
